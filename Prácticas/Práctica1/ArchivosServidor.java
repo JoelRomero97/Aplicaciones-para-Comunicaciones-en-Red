@@ -2,20 +2,20 @@ import java.net.*;
 import java.io.*;
 
 ////////////////////////////////////////////////////////////////////////////////////////
-////							ArchivoServidor.java 								////
+////							ArchivosServidor.java 								////
 ////																				////
 ////																				////
 //// Servidor que se encarga de recibir un archivo seleccionado por un cliente a 	////
 //// partir de un JFileChooser, mostrando el porcentaje de envío y el nombre del	////
 //// archivo en pantalla.															////
-//// Instrucciones: Compilar y ejecutar primero ArchivoServidor.java				////
+//// Instrucciones: Compilar y ejecutar primero ArchivosServidor.java				////
 ////				Posteriormente, compilar y ejecutar ArchivoCliente.java			////
 ////																				////
 ////																				////
 //// Autor: Romero Gamarra Joel Mauricio											////
 ////////////////////////////////////////////////////////////////////////////////////////
 
-public class ArchivoServidor
+public class ArchivosServidor
 {
 	private ServerSocket servidor;
 	private Socket cliente;
@@ -40,7 +40,7 @@ public class ArchivoServidor
 				System.out.println ("Recibiendo archivo " + nombre);
 				dos = new DataOutputStream (new FileOutputStream (nombre));
 				long r = 0, tam;
-				int n = 0, porcentaje;
+				int n = 0, porcentaje = 0;
 				tam = dis.readLong ();
 				while (r < tam)
 				{
@@ -65,6 +65,6 @@ public class ArchivoServidor
 
 	public static void main(String[] args)
 	{
-		new ArchivoServidor ();
+		new ArchivosServidor ();
 	}
 }
