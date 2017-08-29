@@ -35,31 +35,12 @@ public class ArchivosCliente
 			if (opcionSelec == JFileChooser.APPROVE_OPTION)
 			{
 				File [] archivo = opcionArch.getSelectedFiles ();
-				cliente = new Socket (host, puerto);
 				while (i < archivo.length)
 				{
-					enviados = 0;
 					nombreArch = (archivo [i]).getName ();
 					ruta = (archivo [i]).getAbsolutePath ();
 					tamanioArchivo = (archivo [i]).length ();
-					System.out.println ("\n\nInicia la transferencia del archivo " + ruta + "\n");
-					porcentaje = 0;
-					buferSalida = new DataOutputStream (cliente.getOutputStream ());
-					buferEntrada = new DataInputStream (new FileInputStream (ruta));
-					buferSalida.writeUTF (nombreArch);
-					buferSalida.flush ();
-					buferSalida.writeLong (tamanioArchivo);
-					buferSalida.flush ();
-					while (enviados < tamanioArchivo)
-					{
-						byte [] b = new byte [1500];
-						n = buferEntrada.read (b);
-						buferSalida.write (b, 0, n);							//Escribimos desde el byte 0 hasta el byte n
-						buferSalida.flush ();
-						enviados += n;
-						porcentaje = (int)((enviados * 100) / tamanioArchivo);
-						System.out.print ("\rEnviados: " + porcentaje + " %");
-					}
+						envia (nombreArch, ruta, tamanioArchivo, 'a');
 					i ++;
 				}
 				System.out.println ("\n\nArchivo enviado correctamente.\n");
@@ -70,6 +51,45 @@ public class ArchivosCliente
 		}catch (Exception ex)
 		{
 			ex.printStackTrace ();
+		}
+	}
+
+	public void envia (String nombreArch, String ruta, long tamanioArchivo, char tipo)
+	{
+		try
+		{
+			cliente = new Socket (host, puerto);
+			if (tipo == 'a')														//Si se va a copiar un archivo
+			{
+				System.out.println ("\n\nInicia la transferencia del archivo " + ruta + "\n");
+				enviados = 0;
+				porcentaje = 0;
+				buferSalida = new DataOutputStream (cliente.getOutputStream ());
+				buferEntrada = new DataInputStream (new FileInputStream (ruta));
+				buferSalida.writeUTF (nombreArch);
+				buferSalida.flush ();
+				buferSalida.writeLong (tamanioArchivo);
+				buferSalida.flush ();
+				while (enviados < tamanioArchivo)
+				{
+					byte [] b = new byte [1500];
+					n = buferEntrada.read (b);
+					buferSalida.write (b, 0, n);							//Escribimos desde el byte 0 hasta el byte n
+					buferSalida.flush ();
+					enviados += n;
+					porcentaje = (int)((enviados * 100) / tamanioArchivo);
+					System.out.print ("\rEnviados: " + porcentaje + " %");
+				}
+			}else
+			{
+				//AQUI SE VA A COPIAR UN DIRECTORIO
+			}
+			buferSalida.close ();
+			buferEntrada.close ();
+			cliente.close ();
+		}catch (Exception e)
+		{
+			e.printStackTrace ();
 		}
 	}
 
