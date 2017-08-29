@@ -40,7 +40,10 @@ public class ArchivosCliente
 					nombreArch = (archivo [i]).getName ();
 					ruta = (archivo [i]).getAbsolutePath ();
 					tamanioArchivo = (archivo [i]).length ();
+					if ((archivo [i]).isFile ())
 						envia (nombreArch, ruta, tamanioArchivo, 'a');
+					else
+						envia (nombreArch, ruta, tamanioArchivo, 'd');
 					i ++;
 				}
 				System.out.println ("\n\nArchivo enviado correctamente.\n");
