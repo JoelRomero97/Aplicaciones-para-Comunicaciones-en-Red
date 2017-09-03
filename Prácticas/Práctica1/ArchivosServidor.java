@@ -19,11 +19,12 @@ public class ArchivosServidor
 {
 	private ServerSocket servidor;
 	private Socket cliente;
-	private int puerto = 9876;
+	private int puerto = 9876, n = 0, porcentaje = 0;
 	private DataInputStream dis;
 	private DataOutputStream dos;
-	private String nombre;
-	private byte [] b;
+	private String nombre, nombreDirectorio;
+	private long tam, r;
+	private char tipo;
 
 	public ArchivosServidor ()
 	{
@@ -35,16 +36,30 @@ public class ArchivosServidor
 			{
 				cliente = servidor.accept ();
 				System.out.println ("Cliente conectado desde -> " + cliente.getInetAddress () + ":" + cliente.getPort());
-				dis = new DataInputStream (cliente.getInputStream ());
-				nombre = dis.readUTF ();
+				recibe ();
+			}
+		}catch (Exception ex)
+		{
+			ex.printStackTrace ();
+		}
+	}
+
+	public void recibe ()
+	{
+		r = 0;
+		try
+		{
+			dis = new DataInputStream (cliente.getInputStream ());
+			tipo = dis.readChar ();
+			nombre = dis.readUTF ();
+			if (tipo == 'a')
+			{
+				tam = dis.readLong ();
 				System.out.println ("Recibiendo archivo " + nombre);
 				dos = new DataOutputStream (new FileOutputStream (nombre));
-				long r = 0, tam;
-				int n = 0, porcentaje = 0;
-				tam = dis.readLong ();
 				while (r < tam)
 				{
-					b = new byte [1500];
+					byte [] b = new byte [1500];
 					n = dis.read (b);
 					dos.write (b, 0, n);
 					dos.flush ();
@@ -53,13 +68,19 @@ public class ArchivosServidor
 					System.out.print ("\rRecibido el " + porcentaje + "%");
 				}
 				System.out.println ("Archivo recibido...");
-				dos.close ();
-				dis.close ();
-				cliente.close ();
+			}else
+			{
+				System.out.println ("Recibiendo directorio " + nombre);
+				File directorio = new File (nombre);
+				boolean bol = directorio.mkdir ();
+				recibe ();
 			}
-		}catch (Exception ex)
+			dos.close ();
+			dis.close ();
+			cliente.close ();
+		}catch (Exception e)
 		{
-			ex.printStackTrace ();
+			e.printStackTrace ();
 		}
 	}
 

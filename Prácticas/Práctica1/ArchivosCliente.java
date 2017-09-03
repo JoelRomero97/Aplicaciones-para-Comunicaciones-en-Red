@@ -24,6 +24,7 @@ public class ArchivosCliente
 	private String host = "127.0.0.1", nombreArch, ruta;
 	private int i = 0, puerto = 9876, porcentaje, n;
 	private long enviados, tamanioArchivo;
+	private File [] archivo;
 
 	public ArchivosCliente ()
 	{
@@ -31,19 +32,20 @@ public class ArchivosCliente
 		{
 			opcionArch = new JFileChooser ();
 			opcionArch.setMultiSelectionEnabled (true);							//Para transferir varios archivos
+			opcionArch.setFileSelectionMode (JFileChooser.FILES_AND_DIRECTORIES);
 			int opcionSelec = opcionArch.showOpenDialog (null);
 			if (opcionSelec == JFileChooser.APPROVE_OPTION)
 			{
-				File [] archivo = opcionArch.getSelectedFiles ();
+				archivo = opcionArch.getSelectedFiles ();
 				while (i < archivo.length)
 				{
 					nombreArch = (archivo [i]).getName ();
 					ruta = (archivo [i]).getAbsolutePath ();
 					tamanioArchivo = (archivo [i]).length ();
 					if ((archivo [i]).isFile ())
-						envia (nombreArch, ruta, tamanioArchivo, 'a');
+						envia (archivo [i], nombreArch, ruta, tamanioArchivo, 'a');
 					else
-						envia (nombreArch, ruta, tamanioArchivo, 'd');
+						envia (archivo [i], nombreArch, ruta, tamanioArchivo, 'd');
 					i ++;
 				}
 				System.out.println ("\n\nArchivo enviado correctamente.\n");
@@ -57,21 +59,24 @@ public class ArchivosCliente
 		}
 	}
 
-	public void envia (String nombreArch, String ruta, long tamanioArchivo, char tipo)
+	public void envia (File archivo, String nombreArch, String ruta, long tamanioArchivo, char tipo)
 	{
 		try
 		{
 			cliente = new Socket (host, puerto);
+			buferSalida = new DataOutputStream (cliente.getOutputStream ());
+			buferSalida.writeChar (tipo);
+			buferSalida.flush ();
+			buferSalida.writeUTF (nombreArch);
+			buferSalida.flush ();
 			if (tipo == 'a')														//Si se va a copiar un archivo
 			{
-				System.out.println ("\n\nInicia la transferencia del archivo " + ruta + "\n");
+				System.out.println ("\n\nInicia la transferencia del archivo " + nombreArch + "\n");
 				enviados = 0;
 				porcentaje = 0;
-				buferSalida = new DataOutputStream (cliente.getOutputStream ());
 				buferEntrada = new DataInputStream (new FileInputStream (ruta));
-				buferSalida.writeUTF (nombreArch);
-				buferSalida.flush ();
 				buferSalida.writeLong (tamanioArchivo);
+				buferSalida.flush ();
 				buferSalida.flush ();
 				while (enviados < tamanioArchivo)
 				{
@@ -85,7 +90,20 @@ public class ArchivosCliente
 				}
 			}else
 			{
-				//AQUI SE VA A COPIAR UN DIRECTORIO
+				System.out.println ("\n\nInicia la transferencia del directorio " + nombreArch + "\n");
+				File [] directorio = archivo.listFiles ();
+				int i = 0;
+				while (i < directorio.length)
+				{
+					nombreArch = (directorio [i]).getName ();
+					ruta = (directorio [i]).getAbsolutePath ();
+					tamanioArchivo = (directorio [i]).length ();
+					if ((directorio [i]).isFile ())
+						envia (directorio [i], nombreArch, ruta, tamanioArchivo, 'a');
+					else
+						envia (directorio [i], nombreArch, ruta, tamanioArchivo, 'd');
+					i ++;
+				}
 			}
 			buferSalida.close ();
 			buferEntrada.close ();
