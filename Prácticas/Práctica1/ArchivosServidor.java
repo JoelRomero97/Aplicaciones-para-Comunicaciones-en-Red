@@ -73,6 +73,7 @@ public class ArchivosServidor
 				System.out.println ("Recibiendo directorio " + nombre);
 				File directorio = new File (nombre);
 				boolean bol = directorio.mkdir ();
+				dos = new DataOutputStream (new FileOutputStream (nombre));
 				recibe ();
 			}
 			dos.close ();
