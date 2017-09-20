@@ -2,13 +2,13 @@ import java.net.*;
 import java.io.*;
 
 ////////////////////////////////////////////////////////////////////////////////////////
-////									ArchivoCliente.java 								////
+////									ArchivoCliente.java 						////
 ////																				////
 ////																				////
 //// Con la implementación de Socket de datagrama, se crea un servicio en el que 	////
 //// un cliente envia cadenas al servidor y este las recibe.						////
 //// Instrucciones: Compilar y ejecutar Servidor.java								////
-////				Posteriormente, compilar y ejecutar ArchivoCliente.java				////
+////				Posteriormente, compilar y ejecutar ArchivoCliente.java			////
 ////																				////
 ////																				////
 //// Autor: Romero Gamarra Joel Mauricio											////
