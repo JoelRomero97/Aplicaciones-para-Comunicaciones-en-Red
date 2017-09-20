@@ -50,15 +50,15 @@ public class Cliente extends Conexion {
                 //BufferedImage bufferedImage = ImageIO.read(new File("C://Users//JCVELMON//Desktop//mem//src//imagenes/"+x+".jpg"));
                 //ImageIO.write(bufferedImage, "jpg", cs.getOutputStream());
                 //cs.getOutputStream().flush();
-                fis = new FileInputStream("C:/Users/Joel_/Desktop/ESCOM/Aplicaciones para Comunicaciones de Red/Exámenes/Primer Parcial/Memorama/src/imagenes"+x+".jpg"); //inFile -> Archivo a copiar
-                fos = new FileOutputStream("C:/Users/Joel_/Desktop/ESCOM/Aplicaciones para Comunicaciones de Red/Exámenes/Primer Parcial/Memorama/src/imagenesCliente"+x+".jpg"); //outFile -> Copia del archivo
+                fis = new FileInputStream("C:/Users/Joel_/Desktop/ESCOM/Aplicaciones para Comunicaciones de Red/Exámenes/Primer Parcial/Memorama/src/imagenes/"+x+".jpg"); //inFile -> Archivo a copiar
+                fos = new FileOutputStream("C:/Users/Joel_/Desktop/ESCOM/Aplicaciones para Comunicaciones de Red/Exámenes/Primer Parcial/Memorama/src/imagenesCliente/"+x+".jpg"); //outFile -> Copia del archivo
                 FileChannel inChannel = fis.getChannel(); 
                 FileChannel outChannel = fos.getChannel(); 
                 inChannel.transferTo(0, inChannel.size(), outChannel); 
                 x++;
             }
-            fis.close(); 
-            fos.close();
+            /*fis.close(); 
+            fos.close();*/
 
             //Flujo de datos hacia el servidor
             //salidaServidor = new DataOutputStream(cs.getOutputStream());
@@ -68,6 +68,8 @@ public class Cliente extends Conexion {
             bos.close();
             bis.close();
             cs.close();//Fin de la conexión
+            fis.close(); 
+            fos.close();
 
         }
         catch (Exception e)
