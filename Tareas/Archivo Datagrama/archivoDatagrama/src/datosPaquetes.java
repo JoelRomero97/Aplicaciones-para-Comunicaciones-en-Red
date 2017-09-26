@@ -1,5 +1,6 @@
 
 import java.io.Serializable;
+import java.lang.*;
 
 public class datosPaquetes implements Serializable{
     int numPaquete;
@@ -14,7 +15,6 @@ public class datosPaquetes implements Serializable{
         this.nombre = nombre;
         this.tamDatos = tamDatos;
         this.ruta = ruta;
-        
     }
 
     public String getRuta() {

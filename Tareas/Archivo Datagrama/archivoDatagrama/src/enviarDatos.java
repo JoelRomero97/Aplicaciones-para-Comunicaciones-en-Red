@@ -9,9 +9,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
     
 public class enviarDatos {
@@ -47,8 +44,10 @@ public class enviarDatos {
                     byte[] buf = new byte[bufferDatagrama];
                     n = dis.read(buf);
                     datosPaquetes d;
+                    byte[] buf2 = new byte[n];
+                    System.arraycopy(buf, 0, buf2, 0, n);
                     
-                    d = new datosPaquetes(++i,buf,f.getName(),tam,route);
+                    d = new datosPaquetes(++i,buf2,f.getName(),n,route);
                     int cont=0;
                     
                         enviaDatagrama(d, puerto);
