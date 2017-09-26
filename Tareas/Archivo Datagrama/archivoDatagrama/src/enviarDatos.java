@@ -55,7 +55,7 @@ public class enviarDatos {
                         System.out.println("Trama: "+i+" enviada");
                         cont+=1;
                         try{
-                            Thread.sleep(100);
+                            Thread.sleep(500);
                         }catch(InterruptedException t){
                             System.out.println(t.toString());
                         }
