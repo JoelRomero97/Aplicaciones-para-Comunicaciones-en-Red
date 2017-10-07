@@ -8,19 +8,19 @@
 #include <arpa/inet.h>
 #define BUF_SIZE 500
 
-int main(int argc, char const *argv[])
+int main (int argc, char const * argv [])
 {
 	struct addrinfo hints;							//Estructura para las indicaciones del socket
-	struct addrinfo * result;						//Lista con direcciones para conexiÃ³n
+	struct addrinfo * result;						//Lista con direcciones para conexión
 	struct addrinfo * pt;							//Apuntador a la lista de direcciones 'result'
 	int descriptor;									//Descriptor de socket que regresa la funcion 'socket'
 	int direcciones;								//Lista de direcciones para la conexion
-	char * puerto = (char *) malloc (sizeof (char));//Para guardar el puerto para la conextion
+	char * puerto = (char *) malloc (sizeof (char));//Para guardar el puerto para la conexion
 	char direccion_cliente [NI_MAXHOST];			//Para guardar la direccion del cliente
 	char puerto_cliente [NI_MAXSERV];				//Para guardar el puerto del cliente
 	struct sockaddr_storage direccion_envio;		//Para guardar la direccion a donde se va a enviar el datagrama
-	socklen_t longitud_envio;						//Para guardar la longitud de la estructura apuntada por 'direccion_envio'
-	socklen_t longitud_host;						//Para la funciÃ³n getnameinfo
+	socklen_t longitud_estructura;					//Para guardar la longitud de la estructura apuntada por 'direccion_envio'
+	socklen_t longitud_host = 0;					//Para la función getnameinfo
 	ssize_t longitud_mensaje;						//Para guardar la longitud del mensaje recibido
 	char mensaje [BUF_SIZE];						//Para guardar el mensaje recibido
 	if (argc != 2)
@@ -29,14 +29,15 @@ int main(int argc, char const *argv[])
 		exit (0);
 	}else
 		puerto = (char *) argv [1];					//Guardamos el puerto para la conexion
+	system ("clear");
 
-	//Especificaciones para la creaciÃ³n del socket
+	//Especificaciones para la creación del socket
 	memset (&hints, 0, sizeof (struct addrinfo));	//Limpiamos la estructura
 	hints.ai_family = AF_INET6;						//Permite IPv4 e IPv6
 	hints.ai_socktype = SOCK_DGRAM;					//Socket de datagrama
 	hints.ai_flags = AI_PASSIVE;					//Para usar la funcion bind
 	hints.ai_protocol = 0;							//Cualquier protocolo (no lo especificamos)
-	hints.ai_canonname = NULL;						//Nombre canÃ³nico
+	hints.ai_canonname = NULL;						//Nombre canónico
 	hints.ai_addr = NULL;							//Apuntador a la direccion del socket
 	hints.ai_next = NULL;							//Apuntador al siguiente elemento de la lista
 
@@ -48,7 +49,7 @@ int main(int argc, char const *argv[])
 		exit (0);
 	}
 
-	//Recorremos la lista de direcciones obtenida hasta una conexiÃ³n exitosa
+	//Recorremos la lista de direcciones obtenida hasta una conexión exitosa
 	for (pt = result; pt != NULL; pt = pt -> ai_next)
 	{
 		descriptor = socket (pt -> ai_family, pt -> ai_socktype, pt -> ai_protocol);
@@ -57,9 +58,9 @@ int main(int argc, char const *argv[])
 
 		//Modificamos las opciones de socket
 		int op = 0;
-		int opciones = setsockopt (descriptor, IPPROTO_IPV6, IPV6_V6ONLY, &op, sizeof (op));
+		setsockopt (descriptor, IPPROTO_IPV6, IPV6_V6ONLY, &op, sizeof (op));
 
-		//Verificamos la conexiÃ³n
+		//Verificamos la conexión
 		int conexion;
 		conexion = getnameinfo ((struct sockaddr *)&hints, longitud_host, direccion_cliente, sizeof (direccion_cliente),
 								puerto_cliente, sizeof (puerto_cliente), NI_NUMERICHOST | NI_NUMERICSERV);
@@ -77,7 +78,7 @@ int main(int argc, char const *argv[])
 			printf ("\n");
 		}
 
-		//Tratamos de asociar el socket a un puerto (Si es 0, se asociÃ³ correctamente)
+		//Tratamos de asociar el socket a un puerto (Si es 0, se asoció correctamente)
 		int intento_conexion;
 		intento_conexion = bind (descriptor, pt -> ai_addr, pt -> ai_addrlen);
 		if (intento_conexion == 0)
@@ -90,31 +91,36 @@ int main(int argc, char const *argv[])
 		printf("\nError en la conexion\n");
 		exit (0);
 	}
-	freeaddrinfo (result);							//Liberamos la memoria 
+	freeaddrinfo (result);							//Liberamos la memoria
 	
-
+	//Enviamos y recibimos datagramas en un ciclo infinito
 	int direccion;
-	for (;;) {
-        longitud_envio = sizeof(struct sockaddr_storage);
-        longitud_mensaje = recvfrom(descriptor, mensaje, BUF_SIZE, 0,
-                (struct sockaddr *) &direccion_envio, &longitud_envio);
-        if (longitud_mensaje == -1)
-            continue;               /* Ignore failed request */
-
-       char host[NI_MAXHOST], service[NI_MAXSERV];
-
-       direccion = getnameinfo((struct sockaddr *) &direccion_envio,
-                        longitud_envio, host, NI_MAXHOST,
-                        service, NI_MAXSERV, NI_NUMERICSERV);
-       if (direccion == 0)
-            printf("Received %ld bytes from %s:%s\n",
-                    (long) longitud_mensaje, host, service);
-        else
-            fprintf(stderr, "getnameinfo: %s\n", gai_strerror(direccion));
-       if (sendto(descriptor, mensaje, longitud_mensaje, 0,
-                    (struct sockaddr *) &direccion_envio,
-                    longitud_envio) != longitud_mensaje)
-            fprintf(stderr, "Error sending response\n");
-    }
+	for (;;)
+	{
+		longitud_estructura = sizeof (struct sockaddr_storage);
+		longitud_mensaje = recvfrom (descriptor, mensaje, BUF_SIZE, 0,
+									(struct sockaddr *) & direccion_envio, &longitud_estructura);
+		if (longitud_mensaje == -1)
+		{
+			printf ("\nError al recibir el mensaje\n");
+			exit (0);
+		}
+		direccion = getnameinfo ((struct sockaddr *) & direccion_envio, longitud_estructura,
+								direccion_cliente, NI_MAXHOST, puerto_cliente, NI_MAXSERV, NI_NUMERICSERV);
+		if (direccion == 0)
+			printf ("Se recibieron %ld bytes desde %s : %s\n", longitud_mensaje, direccion_cliente, puerto_cliente);
+		else
+		{
+			printf ("Error al convertir la direccion de socket: %s\n", gai_strerror (direccion));
+			exit (0);
+		}
+		if (sendto (descriptor, mensaje, longitud_mensaje, 0,
+					(struct sockaddr *) &direccion_envio,
+					longitud_estructura) != longitud_mensaje)
+		{
+			printf ("Error al escribir el paquete\n");
+			exit (0);
+		}
+	}
 	return 0;
 }
