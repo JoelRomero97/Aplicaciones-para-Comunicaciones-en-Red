@@ -14,7 +14,8 @@ int main(int argc, char const *argv[])
 	struct addrinfo * result;						//Lista con direcciones para conexión
 	struct addrinfo * pt;							//Apuntador a la lista de direcciones 'result'
 	int descriptor;									//Descriptor de socket que regresa la funcion 'socket'
-	int direcciones, puerto;						//Lista de direcciones y puerto para la conexion
+	int direcciones;								//Lista de direcciones para la conexion
+	char * puerto = (char *) malloc (sizeof (char));//Para guardar el puerto para la conextion
 	char direccion_cliente [NI_MAXHOST];			//Para guardar la direccion del cliente
 	char puerto_cliente [NI_MAXSERV];				//Para guardar el puerto del cliente
 	struct sockaddr_storage direccion_envio;		//Para guardar la direccion a donde se va a enviar el datagrama
@@ -27,7 +28,7 @@ int main(int argc, char const *argv[])
 		printf ("\nError, faltan indicar el numero de puerto, ejemplo: '%s 1234'\n\n", argv [0]);
 		exit (0);
 	}else
-		puerto = atoi (argv [1]);					//Guardamos el puerto para la conexion
+		puerto = (char *) argv [1];					//Guardamos el puerto para la conexion
 
 	//Especificaciones para la creación del socket
 	memset (&hints, 0, sizeof (struct addrinfo));	//Limpiamos la estructura
@@ -60,7 +61,7 @@ int main(int argc, char const *argv[])
 
 		//Verificamos la conexión
 		int conexion;
-		conexion = getnameinfo ((struct sockaddr *)&hints, longitud_host, direccion_cliente, sizeof (direccion_cliente)
+		conexion = getnameinfo ((struct sockaddr *)&hints, longitud_host, direccion_cliente, sizeof (direccion_cliente),
 								puerto_cliente, sizeof (puerto_cliente), NI_NUMERICHOST | NI_NUMERICSERV);
 		if (conexion == 0)
 			printf ("Cliente conectado desde %s : %s\n", direccion_cliente, puerto_cliente);
@@ -69,7 +70,51 @@ int main(int argc, char const *argv[])
 		//Convertimos una direccion numerica en una cadena de caracteres
 		char address [NI_MAXHOST];
 		if (inet_ntop (pt -> ai_family, pt -> ai_addr, address, pt -> ai_addrlen) != NULL)
-			printf ("\nDireccion: %s", address);
+		{
+			printf ("\nDireccion: %s\n", address);
+			for (int i = 0; i < 16; i ++)
+				printf ("%02x ", (pt -> ai_addr) -> sa_data [i]);
+			printf ("\n");
+		}
+
+		//Tratamos de asociar el socket a un puerto (Si es 0, se asoció correctamente)
+		int intento_conexion;
+		intento_conexion = bind (descriptor, pt -> ai_addr, pt -> ai_addrlen);
+		if (intento_conexion == 0)
+			break;
+		close (descriptor);
 	}
+
+	if (pt == NULL)
+	{
+		printf("\nError en la conexion\n");
+		exit (0);
+	}
+	freeaddrinfo (result);							//Liberamos la memoria 
+	
+
+	int direccion;
+	for (;;) {
+        longitud_envio = sizeof(struct sockaddr_storage);
+        longitud_mensaje = recvfrom(descriptor, mensaje, BUF_SIZE, 0,
+                (struct sockaddr *) &direccion_envio, &longitud_envio);
+        if (longitud_mensaje == -1)
+            continue;               /* Ignore failed request */
+
+       char host[NI_MAXHOST], service[NI_MAXSERV];
+
+       direccion = getnameinfo((struct sockaddr *) &direccion_envio,
+                        longitud_envio, host, NI_MAXHOST,
+                        service, NI_MAXSERV, NI_NUMERICSERV);
+       if (direccion == 0)
+            printf("Received %ld bytes from %s:%s\n",
+                    (long) longitud_mensaje, host, service);
+        else
+            fprintf(stderr, "getnameinfo: %s\n", gai_strerror(direccion));
+       if (sendto(descriptor, mensaje, longitud_mensaje, 0,
+                    (struct sockaddr *) &direccion_envio,
+                    longitud_envio) != longitud_mensaje)
+            fprintf(stderr, "Error sending response\n");
+    }
 	return 0;
 }
