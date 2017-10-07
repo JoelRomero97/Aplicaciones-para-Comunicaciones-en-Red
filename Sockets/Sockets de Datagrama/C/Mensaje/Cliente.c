@@ -38,7 +38,7 @@ int main (int argc, char const * argv [])
 	hints.ai_flags = 0;									//Para usar la funcion bind
 	hints.ai_protocol = 0;								//Cualquier protocolo (no lo especificamos)
 
-	//Obtenemos una lista de direcciones para la conexion
+	//Obtenemos una lista de direcciones para la conexión
 	direcciones = getaddrinfo (direccion, puerto, &hints, &result);
 	if (direcciones != 0)
 	{
