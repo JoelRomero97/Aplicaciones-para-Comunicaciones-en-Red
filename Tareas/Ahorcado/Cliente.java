@@ -21,7 +21,7 @@ public class Cliente
 	private BufferedReader br;
 	private Scanner sc;
 	private String host, datos;
-	private int puerto;
+	private int puerto, fallos;
 	private DatagramSocket cliente;
 	private DatagramPacket paquete;
 	private byte [] b;
@@ -39,12 +39,10 @@ public class Cliente
 			//Flujo orientado a caracter asociado a la entrada por teclado para que el usuario ingrese una cadena
 			br = new BufferedReader (new InputStreamReader (System.in));
 			sc = new Scanner (System.in);
-			//String host = "127.0.0.1";
 			System.out.println ("\n\nIntroduce la direccion IP: ");
 			host = sc.next ();
 			System.out.println ("\n\nIntroduce el puerto: ");
 			puerto = sc.nextInt ();
-			//int puerto = 7777;
 			try
 			{
 				dst = InetAddress.getByName (host);					//Resolvemos la direccion IP
@@ -68,11 +66,15 @@ public class Cliente
 			paquete = new DatagramPacket (new byte [11], 11);
 			cliente.receive (paquete);
 			datos = new String (paquete.getData (), 0, paquete.getLength ());
-			System.out.println ("Palabra recibida: " + datos);
+			//System.out.println ("Palabra recibida: " + datos);
+
+			clear ();
+			fallos = 6;
 
 			//Comienza el juego
 			for (;;)
 			{
+				System.out.println ("\n\nIntentos Restantes: " + fallos);
 				datos = br.readLine ();
 				if (datos.compareToIgnoreCase ("Salir") == 0)			//Si el usuario teclea la palabra "Salir"
 				{
