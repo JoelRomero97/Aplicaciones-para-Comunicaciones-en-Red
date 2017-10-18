@@ -117,11 +117,11 @@ int main (int argc, char const * argv [])
 		{
 			//printf ("Se recibieron %ld bytes desde %s : %s\n", longitud_mensaje, direccion_cliente, puerto_cliente);
 			if (mensaje [0] == '1')
-				strcpy (dificultad, "Faciles.txt");
+				strcpy (dificultad, "Palabras/Faciles.txt");
 			else if (mensaje [0] == '2')
-				strcpy (dificultad, "Medias.txt");
+				strcpy (dificultad, "Palabras/Medias.txt");
 			else if (mensaje [0] == '3')
-				strcpy (dificultad, "Dificiles.txt");
+				strcpy (dificultad, "Palabras/Dificiles.txt");
 			else
 			{
 				printf("Error al seleccionar la dificultad\n");
