@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include "juega.c"
 #define BUF_SIZE 500
 
 int main (int argc, char const * argv [])
@@ -22,7 +23,10 @@ int main (int argc, char const * argv [])
 	socklen_t longitud_estructura;					//Para guardar la longitud de la estructura apuntada por 'direccion_envio'
 	socklen_t longitud_host = 0;					//Para la función getnameinfo
 	ssize_t longitud_mensaje;						//Para guardar la longitud del mensaje recibido
-	ssize_t mensaje [BUF_SIZE];						//Para guardar el mensaje recibido
+	char mensaje [BUF_SIZE];						//Para guardar el mensaje recibido
+	char * dificultad;								//Para seleccionar la dificultad del juego
+	char * palabra;									//Para guardar la palabra con la que se va a jugar
+
 	if (argc != 2)
 	{
 		printf ("\nError, faltan indicar el numero de puerto, ejemplo: '%s 1234'\n\n", argv [0]);
@@ -95,6 +99,8 @@ int main (int argc, char const * argv [])
 	
 	//Enviamos y recibimos datagramas en un ciclo infinito
 	int direccion;
+	dificultad = (char *) malloc (sizeof (char));
+	palabra = (char *) malloc (sizeof (char));
 	for (;;)
 	{
 		longitud_estructura = sizeof (struct sockaddr_storage);
@@ -108,7 +114,22 @@ int main (int argc, char const * argv [])
 		direccion = getnameinfo ((struct sockaddr *) & direccion_envio, longitud_estructura,
 								direccion_cliente, NI_MAXHOST, puerto_cliente, NI_MAXSERV, NI_NUMERICSERV);
 		if (direccion == 0)
-			printf ("Se recibieron %ld bytes desde %s : %s\n", longitud_mensaje, direccion_cliente, puerto_cliente);
+		{
+			//printf ("Se recibieron %ld bytes desde %s : %s\n", longitud_mensaje, direccion_cliente, puerto_cliente);
+			if (mensaje [0] == '1')
+				strcpy (dificultad, "Faciles.txt");
+			else if (mensaje [0] == '2')
+				strcpy (dificultad, "Medias.txt");
+			else if (mensaje [0] == '3')
+				strcpy (dificultad, "Dificiles.txt");
+			else
+			{
+				printf("Error al seleccionar la dificultad\n");
+				exit (0);
+			}
+			palabra = seleccionar_palabra (dificultad);
+			printf("Palabra seleccionada: '%s'\n", palabra);
+		}
 		else
 		{
 			printf ("Error al convertir la direccion de socket: %s\n", gai_strerror (direccion));

@@ -17,31 +17,20 @@ import java.util.Scanner;
 
 public class Cliente
 {
-	private InetAddress dst;
-	private BufferedReader br;
-	private Scanner sc;
-	private String host, datos;
-	private int puerto;
-	private DatagramSocket cliente;
-	private DatagramPacket paquete;
-
 	public Cliente ()
-	{
-		conecta ();
-		juega ();
-	}
-
-	public void conecta ()
 	{
 		try
 		{
+			InetAddress dst = null;
 			//Flujo orientado a caracter asociado a la entrada por teclado para que el usuario ingrese una cadena
-			br = new BufferedReader (new InputStreamReader (System.in));
-			sc = new Scanner (System.in);
+			BufferedReader br = new BufferedReader (new InputStreamReader (System.in));
+			Scanner sc = new Scanner (System.in);
+			//String host = "127.0.0.1";
 			System.out.println ("\n\nIntroduce la direccion IP: ");
-			host = sc.next ();
+			String host = sc.next ();
 			System.out.println ("\n\nIntroduce el puerto: ");
-			puerto = sc.nextInt ();
+			int puerto = sc.nextInt ();
+			//int puerto = 7777;
 			try
 			{
 				dst = InetAddress.getByName (host);					//Resolvemos la direccion IP
@@ -50,19 +39,9 @@ public class Cliente
 				System.err.println ("Direccion invalida.\n");
 				System.exit (1);
 			}
-			//Creamos el socket sin asociarlo a ningun puerto, por lo tanto se le asociará automáticamente
-			cliente = new DatagramSocket ();
+			//Creamos el socket sin asociarlo a ningun puerto, por lo tanto se le asociará
+			DatagramSocket cliente = new DatagramSocket ();
 			System.out.println ("Escribe una cadena. <Enter> para enviar\n\n\"Salir\" Para terminar\n\n");
-		}catch (Exception e)
-		{
-			e.printStackTrace ();
-		}
-	}
-
-	public void juega ()
-	{
-		try
-		{
 			for (;;)
 			{
 				String datos = br.readLine ();
@@ -70,7 +49,7 @@ public class Cliente
 				{
 					byte [] b = datos.getBytes ();						//Convertimos cadena a un arreglo de bytes
 					//Creamos el paquete de datagrama con el arreglo de bytes, la longitud, la direccion y el puerto
-					paquete = new DatagramPacket (b, b.length, dst, puerto);
+					DatagramPacket paquete = new DatagramPacket (b, b.length, dst, puerto);
 					cliente.send (paquete);								//Enviamos el paquete
 					break;
 				}else
@@ -84,14 +63,14 @@ public class Cliente
 						while ((n = bais.read (b2)) != -1)
 						{
 							//Creamos nuestro paquete de datagrama con el arreglo, los bytes leidos, la direccion y el puerto
-							paquete = new DatagramPacket (b2, n, dst, puerto);
+							DatagramPacket paquete = new DatagramPacket (b2, n, dst, puerto);
 							cliente.send (paquete);									//Enviamos el paquete
 							b2 = new byte [65535];
 						}
 						bais.close ();												//Cerramos el arreglo orientado a bytes
 					}else
 					{
-						paquete = new DatagramPacket (b, b.length, dst, puerto);
+						DatagramPacket paquete = new DatagramPacket (b, b.length, dst, puerto);
 						cliente.send (paquete);										//Enviamos el paquete
 					}
 				}
@@ -102,12 +81,6 @@ public class Cliente
 		{
 			e.printStackTrace ();
 		}
-	}
-
-	public void clear ()
-	{
-		System.out.print("\033[H\033[2J");
-    	System.out.flush();
 	}
 
 	public static void main(String[] args)
