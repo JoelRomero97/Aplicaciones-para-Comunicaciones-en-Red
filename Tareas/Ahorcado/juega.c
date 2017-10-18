@@ -16,5 +16,6 @@ char * seleccionar_palabra (char * dificultad)
 	numero_palabra = rand () % 26;
 	for (i = 0; i < numero_palabra; i ++)
 		fscanf (archivo, "%s\n", palabra);
+	fclose (archivo);
 	return palabra;
 }

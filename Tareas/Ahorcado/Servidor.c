@@ -101,6 +101,50 @@ int main (int argc, char const * argv [])
 	int direccion;
 	dificultad = (char *) malloc (sizeof (char));
 	palabra = (char *) malloc (sizeof (char));
+
+	//El cliente selecciona la dificultad del juego antes de comenzar el ciclo
+	longitud_estructura = sizeof (struct sockaddr_storage);
+	longitud_mensaje = recvfrom (descriptor, mensaje, BUF_SIZE, 0,
+								(struct sockaddr *) & direccion_envio, &longitud_estructura);
+	if (longitud_mensaje == -1)
+	{
+		printf ("\nError al recibir el mensaje\n");
+		exit (0);
+	}
+	direccion = getnameinfo ((struct sockaddr *) & direccion_envio, longitud_estructura,
+							direccion_cliente, NI_MAXHOST, puerto_cliente, NI_MAXSERV, NI_NUMERICSERV);
+	if (direccion == 0)
+	{
+		if (mensaje [0] == '1')
+			strcpy (dificultad, "Palabras/Faciles.txt");
+		else if (mensaje [0] == '2')
+			strcpy (dificultad, "Palabras/Medias.txt");
+		else if (mensaje [0] == '3')
+			strcpy (dificultad, "Palabras/Dificiles.txt");
+		else
+		{
+			printf("Error al seleccionar la dificultad\n");
+			exit (0);
+		}
+		palabra = seleccionar_palabra (dificultad);
+		printf("Palabra seleccionada: '%s'\n", palabra);
+		longitud_mensaje = strlen (palabra) + 1;
+		
+		//Enviamos la palabra
+		if (sendto (descriptor, palabra, longitud_mensaje, 0,
+			(struct sockaddr *) &direccion_envio,
+			longitud_estructura) != longitud_mensaje)
+		{
+			printf ("Error al enviar la palabra\n");
+			exit (0);
+		}
+	}else
+	{
+		printf ("Error al convertir la direccion de socket: %s\n", gai_strerror (direccion));
+		exit (0);
+	}
+
+	//Comienza el juego
 	for (;;)
 	{
 		longitud_estructura = sizeof (struct sockaddr_storage);
@@ -115,7 +159,9 @@ int main (int argc, char const * argv [])
 								direccion_cliente, NI_MAXHOST, puerto_cliente, NI_MAXSERV, NI_NUMERICSERV);
 		if (direccion == 0)
 		{
-			//printf ("Se recibieron %ld bytes desde %s : %s\n", longitud_mensaje, direccion_cliente, puerto_cliente);
+
+			//AQUI VA TODA LA LOGICA DEL JUEGO
+			/*
 			if (mensaje [0] == '1')
 				strcpy (dificultad, "Palabras/Faciles.txt");
 			else if (mensaje [0] == '2')
@@ -129,19 +175,31 @@ int main (int argc, char const * argv [])
 			}
 			palabra = seleccionar_palabra (dificultad);
 			printf("Palabra seleccionada: '%s'\n", palabra);
-		}
-		else
+			longitud_mensaje = strlen (palabra) + 1;
+			
+			//Enviamos la palabra
+			if (sendto (descriptor, palabra, longitud_mensaje, 0,
+				(struct sockaddr *) &direccion_envio,
+				longitud_estructura) != longitud_mensaje)
+			{
+				printf ("Error al enviar la palabra\n");
+				exit (0);
+			}
+			*/
+		}else
 		{
 			printf ("Error al convertir la direccion de socket: %s\n", gai_strerror (direccion));
 			exit (0);
 		}
-		if (sendto (descriptor, mensaje, longitud_mensaje, 0,
+		/*
+		if (sendto (descriptor, palabra, longitud_mensaje, 0,
 					(struct sockaddr *) &direccion_envio,
 					longitud_estructura) != longitud_mensaje)
 		{
-			printf ("Error al escribir el paquete\n");
+			printf ("Error al enviar la palabra\n");
 			exit (0);
 		}
+		*/
 	}
 	return 0;
 }

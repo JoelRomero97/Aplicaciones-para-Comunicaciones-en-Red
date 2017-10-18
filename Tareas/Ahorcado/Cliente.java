@@ -64,6 +64,12 @@ public class Cliente
 			paquete = new DatagramPacket (b, b.length, dst, puerto);
 			cliente.send (paquete);										//Enviamos el paquete
 
+			//Recibimos la palabra
+			paquete = new DatagramPacket (new byte [11], 11);
+			cliente.receive (paquete);
+			datos = new String (paquete.getData (), 0, paquete.getLength ());
+			System.out.println ("Palabra recibida: " + datos);
+
 			//Comienza el juego
 			for (;;)
 			{
