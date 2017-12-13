@@ -21,8 +21,8 @@ public class ArchivosServidor
 	private String nombre,DirPadre;
 	private long tam, r;
 	private char tipo;
-        String rutaS="C:\\Users\\enata_000\\Documents\\SERVIDOR\\";
-        String carpeta="";
+    String rutaS="C:\\Users\\Joel_\\Desktop\\ESCOM\\Aplicaciones para Comunicaciones de Red\\Prácticas\\Práctica1\\Manejador Archivos\\Servidor";
+    String carpeta="";
 
 	public ArchivosServidor ()
 	{
@@ -57,16 +57,15 @@ public class ArchivosServidor
 			{
                             
 				tam = dis.readLong ();
-				if(DirPadre==""){
-                                    System.out.println ("Recibiendo archivo " + nombre +"        RUTA DESTINO "+ruta+DirPadre+nombre);
-                                    //System.out.println ("Recibiendo archivo " + nombre +"       Dirpadre> "+DirPadre + "        ruta "+ruta+DirPadre+nombre);
-                                    dos = new DataOutputStream (new FileOutputStream (ruta+DirPadre+nombre));
-                                }
-                                else{
-                                    System.out.println ("Recibiendo archivo " + nombre +"        RUTA DESTINO "+ruta+DirPadre+"\\"+nombre);
-                                    //System.out.println ("Recibiendo archivo " + nombre +"       Dirpadre> "+DirPadre + "        ruta "+ruta+DirPadre+"\\"+nombre);
-                                    dos = new DataOutputStream (new FileOutputStream (ruta+DirPadre+"\\"+nombre));
-                                }
+				if(DirPadre=="")
+				{
+                    System.out.println ("Recibiendo archivo " + nombre +"        RUTA DESTINO "+ruta+DirPadre+nombre);
+                    dos = new DataOutputStream (new FileOutputStream (ruta+DirPadre+nombre));
+                }else
+                {
+                    System.out.println ("Recibiendo archivo " + nombre +"        RUTA DESTINO "+ruta+DirPadre+"\\"+nombre);
+                    dos = new DataOutputStream (new FileOutputStream (ruta+DirPadre+"\\"+nombre));
+                }
 				while (r < tam)
 				{
 					byte [] b = new byte [1500];
@@ -82,9 +81,8 @@ public class ArchivosServidor
 			}else
 			{
 				System.out.println ("Recibiendo directorio " + nombre + "        RUTA DESTINO "+ruta+DirPadre);
-				//System.out.println ("Recibiendo directorio " + nombre +"Dirpadre> "+DirPadre+ "        ruta "+ruta+DirPadre);
 				boolean bol = new File (ruta+DirPadre+"\\").mkdir ();
-                                System.out.println ("Directorio creado...\n\n");
+                System.out.println ("Directorio creado...\n\n");
 			}
 			dos.close ();
 			dis.close ();
